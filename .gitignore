@@ -1,0 +1,26 @@
+# SBT
+target/
+project/project/
+project/target/
+boot/
+lib_managed/
+src_managed/
+
+# IDE
+.idea/
+.idea_modules/
+.vscode/
+.metals/
+.bloop/
+.bsp/
+*.iml
+
+# Mac
+.DS_Store
+
+# Test artifacts
+test-output/
+*.log
+
+# Template test output
+target/g8/

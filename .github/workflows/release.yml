@@ -1,0 +1,99 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., 1.0.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  validate:
+    name: Validate Release
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: 21
+          cache: 'sbt'
+      
+      - uses: sbt/setup-sbt@v1
+      
+      - name: Run template tests
+        run: |
+          # Test with multiple Scala versions
+          for scala_version in 2.13.16 3.7.1; do
+            echo "Testing with Scala $scala_version"
+            sbt new file://$GITHUB_WORKSPACE \
+              --name=release-test \
+              --scala_version=$scala_version \
+              --directory=release-test-$scala_version \
+              --force <<< "\n"
+            
+            cd release-test-$scala_version
+            sbt compile test
+            cd ..
+          done
+
+  release:
+    name: Create Release
+    needs: validate
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Extract version
+        id: version
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION="${GITHUB_REF#refs/tags/v}"
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+      
+      - name: Generate release notes
+        id: notes
+        run: |
+          cat << EOF > release_notes.md
+          ## LLM4S Template v${{ steps.version.outputs.version }}
+          
+          ### What's New
+          - Template version: ${{ steps.version.outputs.version }}
+          - Compatible with LLM4S versions: 0.1.0 - 0.1.x
+          - Supports Scala: 2.13.16, 3.7.1
+          
+          ### Usage
+          
+          Create a new project with this template version:
+          
+          \`\`\`bash
+          sbt new llm4s/llm4s.g8.git#v${{ steps.version.outputs.version }}
+          \`\`\`
+          
+          ### Full Changelog
+          See [CHANGELOG.md](https://github.com/llm4s/llm4s.g8/blob/main/CHANGELOG.md) for detailed changes.
+          EOF
+      
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: Template v${{ steps.version.outputs.version }}
+          body_path: release_notes.md
+          draft: false
+          prerelease: false
+          generate_release_notes: true

@@ -1,0 +1,137 @@
+name: Template CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+# Concurrency settings to prevent conflicts
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  validate-template:
+    name: Validate Template
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        scala: [2.13.16, 3.7.1]
+        llm4s: [0.1.1]
+        java: [21]
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ matrix.java }}
+          cache: 'sbt'
+      
+      - name: Cache Coursier
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/coursier
+            ~/.ivy2/cache
+            ~/.sbt
+          key: ${{ runner.os }}-template-${{ matrix.scala }}-${{ matrix.java }}-${{ hashFiles('**/build.sbt', '**/project/**.scala', '**/project/build.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-template-${{ matrix.scala }}-${{ matrix.java }}-
+            ${{ runner.os }}-template-${{ matrix.scala }}-
+            ${{ runner.os }}-template-
+      
+      - uses: sbt/setup-sbt@v1
+      
+      - name: Validate template syntax
+        run: sbt compile
+      
+      - name: Generate project from template
+        run: |
+          sbt new file://$GITHUB_WORKSPACE \
+            --name=test-project \
+            --package=org.llm4s.test \
+            --version=0.1.0-SNAPSHOT \
+            --llm4s_version=${{ matrix.llm4s }} \
+            --scala_version=${{ matrix.scala }} \
+            --java_version=${{ matrix.java }} \
+            --munit_version=1.1.1 \
+            --directory=test-project \
+            --force <<< "\n"
+      
+      - name: Compile generated project
+        run: |
+          cd test-project
+          sbt clean compile
+      
+      - name: Run tests in generated project
+        run: |
+          cd test-project
+          sbt test
+      
+      - name: Check formatting in generated project
+        run: |
+          cd test-project
+          sbt scalafmtCheckAll
+
+  compatibility-matrix:
+    name: Test Compatibility
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Test different LLM4S versions with Scala 2.13
+          - scala: 2.13.16
+            llm4s: 0.1.0
+            java: 21
+          - scala: 2.13.16
+            llm4s: 0.1.1
+            java: 21
+          # Test different LLM4S versions with Scala 3
+          - scala: 3.7.1
+            llm4s: 0.1.1
+            java: 21
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ matrix.java }}
+          cache: 'sbt'
+      
+      - uses: sbt/setup-sbt@v1
+      
+      - name: Test template with specific versions
+        run: |
+          sbt new file://$GITHUB_WORKSPACE \
+            --name=compat-test \
+            --package=org.llm4s.compat \
+            --llm4s_version=${{ matrix.llm4s }} \
+            --scala_version=${{ matrix.scala }} \
+            --directory=compat-test \
+            --force <<< "\n"
+          
+          cd compat-test
+          sbt compile test
+
+  all-checks-pass:
+    name: All Checks Pass
+    if: always()
+    needs: [validate-template, compatibility-matrix]
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Check all tests passed
+        run: |
+          if [[ "${{ needs.validate-template.result }}" != "success" || "${{ needs.compatibility-matrix.result }}" != "success" ]]; then
+            echo "Some checks failed"
+            exit 1
+          fi
+          echo "All checks passed!"

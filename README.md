@@ -20,6 +20,7 @@ You will be prompted for various parameters:
 - `llm4s_version`: LLM4S library version (default: `0.1.1`)
 - `scala_version`: Scala version (default: `2.13.16`)
 - `java_version`: Java version (default: `21`)
+- `munit_version`: Munit testing library version (default: `1.1.1`)
 
 ### Using a specific template version
 
@@ -37,8 +38,10 @@ You can also provide parameters directly:
 sbt new llm4s/llm4s.g8 \
   --name=my-llm-project \
   --package=com.example.llm \
-  --llm4s_version=0.1.1 \
+  --llm4s_version=0.1.9 \
   --scala_version=2.13.16
+  --java_version=21 \
+  --munit_version=1.1.1 \
 ```
 
 ## Template Features

@@ -60,7 +60,6 @@ jobs:
             --scala_version=${{ matrix.scala }} \
             --java_version=${{ matrix.java }} \
             --munit_version=1.1.1 \
-            --directory=test-project \
             --force <<< "\n"
       
       - name: Compile generated project
@@ -87,14 +86,14 @@ jobs:
         include:
           # Test different LLM4S versions with Scala 2.13
           - scala: 2.13.16
-            llm4s: 0.1.0
+            llm4s: 0.1.9
             java: 21
           - scala: 2.13.16
-            llm4s: 0.1.1
+            llm4s: 0.1.9
             java: 21
           # Test different LLM4S versions with Scala 3
           - scala: 3.7.1
-            llm4s: 0.1.1
+            llm4s: 0.1.9
             java: 21
     
     steps:
@@ -115,7 +114,6 @@ jobs:
             --package=org.llm4s.compat \
             --llm4s_version=${{ matrix.llm4s }} \
             --scala_version=${{ matrix.scala }} \
-            --directory=compat-test \
             --force <<< "\n"
           
           cd compat-test

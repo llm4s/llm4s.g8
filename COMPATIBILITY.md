@@ -6,22 +6,57 @@ This document outlines the compatibility between different versions of the LLM4S
 
 | Template Version | LLM4S Versions | Scala Versions | Java Version | Status |
 |-----------------|----------------|----------------|--------------|---------|
-| 1.0.x           | 0.1.0 - 0.1.x  | 2.13.16, 3.7.1 | 21          | Current |
+| 1.1.x           | 0.3.x (default `0.3.4`) | 3.7.1 | 21 | Current |
+| 1.0.x           | 0.1.0 - 0.1.x  | 2.13.16, 3.7.1 | 21 | Broken — see below |
+
+The canonical support matrix for the library itself lives in the main repository at
+[`docs/reference/v1-scope.md`](https://github.com/llm4s/llm4s/blob/main/docs/reference/v1-scope.md).
+This document only records what the template generates.
 
 ## Detailed Compatibility
 
-### Template v1.0.x
+### Template v1.1.x (current)
+
+**LLM4S artifact:** `"org.llm4s" %% "core"`.
+
+The aggregate `"org.llm4s" %% "llm4s"` artifact that template v1.0.x depended on is **no longer
+published** — the root project in the library build sets `publish / skip := true`, and the last
+published `llm4s_3` / `llm4s_2.13` was 0.2.9. The published module that continued is `core`.
+Bumping the version alone does not fix a v1.0.x-generated project; the artifact name has to change
+too.
 
 **Supported LLM4S Versions:**
-- 0.1.0 ✅
-- 0.1.1 ✅ (default)
+- 0.3.4 ✅ (default)
 
 **Supported Scala Versions:**
-- 2.13.16 ✅ (default)
-- 3.7.1 ✅
+- 3.7.1 ✅ (default, and the only supported version)
 
 **Supported Java Versions:**
 - Java 21 ✅ (required)
+
+### Scala 2.13
+
+Scala 2.13 is **not supported** by this template going forward.
+
+- `core_2.13` was last published at **0.2.9** (2026-01-11); `core_3` has continued (0.3.4 at the
+  time of writing).
+- LLM4S 1.0 targets **Scala 3 only (3.7.1)**. Scala 2.13 support is deferred to post-1.0 and, if
+  it happens, would target a subset of the module tree.
+- Tracking issue: [llm4s#874](https://github.com/llm4s/llm4s/issues/874).
+
+If you need Scala 2.13, pin the template to LLM4S 0.2.9 and be aware that it is not receiving
+updates:
+
+```bash
+sbt new llm4s/llm4s.g8 --scala_version=2.13.16 --llm4s_version=0.2.9
+```
+
+Note that the 0.2.9 API differs from 0.3.x, so the generated sources will need adjusting.
+
+### Known bad versions
+
+A version numbered `2.1.593` appears on Maven Central for these artifacts. It is an accidental
+mis-publish (a typo) that cannot be retracted — do not use it.
 
 **Features:**
 - Full LLM4S API support
@@ -43,26 +78,17 @@ sbt new llm4s/llm4s.g8
 
 This will use:
 - Latest template version
-- LLM4S 0.1.1 (current default)
-- Scala 2.13.16 (current default)
+- LLM4S 0.3.4 (current default)
+- Scala 3.7.1 (current default)
 
-### For Specific LLM4S Versions
-
-#### LLM4S 0.1.0
-```bash
-sbt new llm4s/llm4s.g8 --llm4s_version=0.1.0
-```
-
-#### LLM4S 0.1.1 (latest)
-```bash
-sbt new llm4s/llm4s.g8 --llm4s_version=0.1.1
-```
-
-### For Scala 3 Projects
+### For a specific LLM4S version
 
 ```bash
-sbt new llm4s/llm4s.g8 --scala_version=3.7.1
+sbt new llm4s/llm4s.g8 --llm4s_version=0.3.4
 ```
+
+Any `0.3.x` release of `core_3` should work; earlier releases use a different API and are not
+supported by the generated sources.
 
 ## Migration Guide
 
@@ -90,7 +116,8 @@ To upgrade to a newer template version for an existing project:
 
 ## Testing Matrix
 
-All combinations in the compatibility matrix are tested in CI:
+The combination in the compatibility matrix is tested in CI (template generation plus a real
+`sbt compile test` inside the generated project):
 
 - ✅ Template generation succeeds
 - ✅ Generated project compiles
@@ -99,7 +126,9 @@ All combinations in the compatibility matrix are tested in CI:
 
 ## Known Issues
 
-None at this time.
+- Template v1.0.x generates projects that cannot resolve their dependency: it points at
+  `"org.llm4s" %% "llm4s" % "0.1.9"`, an artifact that is no longer published. Regenerate with the
+  current template.
 
 ## Support
 

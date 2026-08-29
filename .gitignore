@@ -24,3 +24,5 @@ test-output/
 
 # Template test output
 target/g8/
+# Generated giter8 test project (staged by `sbt test`)
+src/sbt-test/

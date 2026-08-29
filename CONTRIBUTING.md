@@ -58,7 +58,7 @@ If you find a bug or have a suggestion:
 ### Prerequisites
 
 - Java 21 or higher
-- SBT 1.10.6 or higher
+- SBT 1.10.6 or higher (the generated project pins its own sbt version)
 - Git
 
 ### Local Testing
@@ -68,12 +68,16 @@ If you find a bug or have a suggestion:
    sbt test
    ```
 
+   This generates the template into `target/sbt-test/llm4s.g8/scripted` and then runs
+   `sbt clean scalafmtCheckAll test` inside the generated project, so a template that does not
+   compile — or whose dependency no longer resolves — fails the build here.
+
 2. **Test with custom parameters**:
    ```bash
    sbt new file://$(pwd) \
      --name=my-test \
      --scala_version=3.7.1 \
-     --llm4s_version=0.1.1
+     --llm4s_version=0.3.4
    ```
 
 3. **Validate generated project**:
@@ -136,10 +140,10 @@ $endif$
 ### CI/CD Tests
 
 The CI pipeline tests:
-- Multiple Scala versions (2.13.16, 3.7.1)
-- Multiple LLM4S versions
+- Scala 3.7.1 (LLM4S 1.0 is published for Scala 3 only — see COMPATIBILITY.md)
+- The default LLM4S version from `default.properties`
 - Template syntax validation
-- Generated project validation
+- Generated project validation (compile, format check, tests)
 
 ## Documentation
 

@@ -32,20 +32,17 @@ jobs:
       - uses: sbt/setup-sbt@v1
       
       - name: Run template tests
+        run: sbt test
+
+      - name: Generate and build a project through the giter8 CLI
         run: |
-          # Test with multiple Scala versions
-          for scala_version in 2.13.16 3.7.1; do
-            echo "Testing with Scala $scala_version"
-            sbt new file://$GITHUB_WORKSPACE \
-              --name=release-test \
-              --scala_version=$scala_version \
-              --directory=release-test-$scala_version \
-              --force <<< "\n"
-            
-            cd release-test-$scala_version
-            sbt compile test
-            cd ..
-          done
+          sbt new file://$GITHUB_WORKSPACE \
+            --name=release-test \
+            --directory=release-test \
+            --force <<< "\n"
+
+          cd release-test
+          sbt compile test
 
   release:
     name: Create Release
@@ -68,21 +65,23 @@ jobs:
       - name: Generate release notes
         id: notes
         run: |
-          cat << EOF > release_notes.md
+          # Quoted delimiter: release notes are Markdown and contain backticks, which an
+          # unquoted heredoc would run as command substitution -- silently emptying them.
+          cat << 'EOF' > release_notes.md
           ## LLM4S Template v${{ steps.version.outputs.version }}
           
           ### What's New
           - Template version: ${{ steps.version.outputs.version }}
-          - Compatible with LLM4S versions: 0.1.0 - 0.1.x
-          - Supports Scala: 2.13.16, 3.7.1
+          - Compatible with LLM4S versions: 0.4.x (default 0.4.0, artifact `org.llm4s %% llm4s-core`)
+          - Supports Scala: 3.7.1 (LLM4S 1.0 is Scala 3 only)
           
           ### Usage
           
           Create a new project with this template version:
           
-          \`\`\`bash
+          ```bash
           sbt new llm4s/llm4s.g8.git#v${{ steps.version.outputs.version }}
-          \`\`\`
+          ```
           
           ### Full Changelog
           See [CHANGELOG.md](https://github.com/llm4s/llm4s.g8/blob/main/CHANGELOG.md) for detailed changes.

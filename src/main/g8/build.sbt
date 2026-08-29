@@ -5,13 +5,13 @@ ThisBuild / organization := "$package$"
 ThisBuild / version := "$version$"
 ThisBuild / scalaVersion := "$scala_version$"
 
-// Enable SemanticDB for Scalafix semantic rules
-ThisBuild / semanticdbEnabled  := true
-ThisBuild / semanticdbVersion  := scalafixSemanticdb.revision
+// Enable SemanticDB for Scalafix semantic rules.
+// Scala 3 emits SemanticDB from the compiler itself, so no semanticdbVersion is needed.
+ThisBuild / semanticdbEnabled := true
 
 // =========== Dependencies ===========
 libraryDependencies ++= Seq(
-  "org.llm4s" %% "llm4s" % "$llm4s_version$", // LLM library dependency
+  "org.llm4s" %% "llm4s-core" % "$llm4s_version$", // LLM4S library dependency
   "org.scalameta" %% "munit" % "$munit_version$" % Test,
 
   // Logger dependencies
@@ -30,23 +30,16 @@ libraryDependencies ++= Seq(
 )
 
 // Scalafix dependencies (needed for custom rules or built-ins)
-ThisBuild / scalafixDependencies += "ch.epfl.scala" %% "scalafix-rules" % "0.14.3" // adjust version as needed
+ThisBuild / scalafixDependencies += "ch.epfl.scala" %% "scalafix-rules" % "0.14.7" // adjust version as needed
 
 // =========== Compiler options ===========
+// LLM4S 1.0 is published for Scala 3 only, so these are the Scala 3 option names.
 ThisBuild / scalacOptions ++= Seq(
-  "-deprecation",         // Warn about use of deprecated APIs
-  "-feature",             // Warn about misused features
-  "-unchecked",           // Additional warnings for unhandled cases
-  "-Xlint",               // Recommended additional warnings
-  "-Wdead-code",          // Warn when dead code is identified (was -Ywarn-dead-code)
-  "-Wunused:locals",      // Warn when local defs are unused (was -Ywarn-unused)
-  "-encoding", "UTF-8",   // Specify character encoding
-  {
-    if (scalaVersion.value.startsWith("2.12"))
-      "-Ywarn-unused-import" // 2.12 specific
-    else
-      "-Wunused:imports"     // Scala 2.13+ and Scala 3
-  }
+  "-deprecation",       // Warn about use of deprecated APIs
+  "-feature",           // Warn about misused features
+  "-unchecked",         // Additional warnings for unhandled cases
+  "-Wunused:all",       // Warn about unused imports, locals, privates, params
+  "-encoding", "UTF-8", // Specify character encoding
 )
 
 // =========== Project definition ===========

@@ -19,8 +19,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        scala: [2.13.16, 3.7.1]
-        llm4s: [0.1.1]
+        scala: [3.7.1]
+        llm4s: [0.4.0]
         java: [21]
     
     steps:
@@ -49,6 +49,9 @@ jobs:
       
       - name: Validate template syntax
         run: sbt compile
+
+      - name: Generate the template and run the generated project's build
+        run: sbt test
       
       - name: Generate project from template
         run: |
@@ -84,16 +87,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Test different LLM4S versions with Scala 2.13
-          - scala: 2.13.16
-            llm4s: 0.1.9
-            java: 21
-          - scala: 2.13.16
-            llm4s: 0.1.9
-            java: 21
-          # Test different LLM4S versions with Scala 3
+          # LLM4S 1.0 is Scala 3 only; `core_2.13` stopped at 0.2.9.
+          # See https://github.com/llm4s/llm4s/issues/874 for post-1.0 Scala 2.13 plans.
           - scala: 3.7.1
-            llm4s: 0.1.9
+            llm4s: 0.4.0
             java: 21
     
     steps:

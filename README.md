@@ -17,8 +17,8 @@ You will be prompted for various parameters:
 - `name`: Project name (default: `llm4s-template`)
 - `package`: Package name (default: `org.llm4s.template`)
 - `version`: Initial project version (default: `0.1.0-SNAPSHOT`)
-- `llm4s_version`: LLM4S library version (default: `0.1.1`)
-- `scala_version`: Scala version (default: `2.13.16`)
+- `llm4s_version`: LLM4S library version (default: `0.4.0`)
+- `scala_version`: Scala version (default: `3.7.1`)
 - `java_version`: Java version (default: `21`)
 - `munit_version`: Munit testing library version (default: `1.1.1`)
 
@@ -38,17 +38,18 @@ You can also provide parameters directly:
 sbt new llm4s/llm4s.g8 \
   --name=my-llm-project \
   --package=com.example.llm \
-  --llm4s_version=0.1.9 \
-  --scala_version=2.13.16
+  --llm4s_version=0.4.0 \
+  --scala_version=3.7.1 \
   --java_version=21 \
-  --munit_version=1.1.1 \
+  --munit_version=1.1.1
 ```
 
 ## Template Features
 
 This template creates a complete LLM4S project with:
 
-- ✅ Pre-configured `build.sbt` with LLM4S dependencies
+- ✅ Pre-configured `build.sbt` depending on the published `org.llm4s %% llm4s-core` artifact
+- ✅ `application.conf` with a named provider wired to environment variables via `Llm4sConfig`
 - ✅ Example application demonstrating LLM4S usage
 - ✅ Test setup with Munit
 - ✅ Scalafmt configuration
@@ -65,14 +66,18 @@ my-llm-project/
 │       └── ci.yml           # CI/CD configuration
 ├── src/
 │   ├── main/
+│   │   ├── resources/
+│   │   │   └── application.conf  # llm4s named-provider configuration
 │   │   └── scala/
 │   │       └── com/example/
-│   │           └── Main.scala    # Example application
+│   │           ├── Main.scala          # Example application
+│   │           └── PromptExecutor.scala # Prompt execution against llm4s
 │   └── test/
 │       └── scala/
 │           └── com/example/
-│               └── MainSuite.scala # Example tests
-├── .env.example              # Environment variables template
+│               ├── MainSpec.scala           # Configuration smoke tests
+│               └── PromptExecutorSpec.scala # Stub-client behaviour tests
+├── .env.<name>               # Environment variables template
 ├── .gitignore
 ├── .scalafmt.conf           # Code formatting rules
 ├── build.sbt                # SBT build configuration
@@ -85,7 +90,10 @@ my-llm-project/
 
 | Template Version | LLM4S Versions | Scala Versions |
 |-----------------|----------------|----------------|
-| 1.0.x           | 0.1.0 - 0.1.x  | 2.13.16, 3.7.1 |
+| 1.1.x           | 0.4.x (default `0.4.0`) | 3.7.1 |
+| 1.0.x           | 0.1.0 - 0.1.x (artifact no longer published) | 2.13.16, 3.7.1 |
+
+LLM4S 1.0 targets Scala 3 only; see [COMPATIBILITY.md](COMPATIBILITY.md).
 
 ## Development
 
@@ -98,9 +106,10 @@ sbt test
 ```
 
 This will:
-1. Generate a project from the template
-2. Compile the generated project
-3. Run tests in the generated project
+1. Generate a project from the template into `target/sbt-test/llm4s.g8/scripted`
+2. Run `sbt clean scalafmtCheckAll test` inside the generated project
+
+If the template stops compiling, or its LLM4S dependency stops resolving, this command fails.
 
 ### Contributing
 

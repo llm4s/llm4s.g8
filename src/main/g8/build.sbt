@@ -11,7 +11,7 @@ ThisBuild / semanticdbEnabled := true
 
 // =========== Dependencies ===========
 libraryDependencies ++= Seq(
-  "org.llm4s" %% "core" % "$llm4s_version$", // LLM4S library dependency (published artifact is `core`)
+  "org.llm4s" %% "llm4s-core" % "$llm4s_version$", // LLM4S library dependency
   "org.scalameta" %% "munit" % "$munit_version$" % Test,
 
   // Logger dependencies

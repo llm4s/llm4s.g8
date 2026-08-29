@@ -11,8 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **The generated project no longer depends on a dead artifact.** The template depended on
   `"org.llm4s" %% "llm4s"`, which is no longer published — the root project of the library build
   sets `publish / skip := true`, and the last `llm4s_3` / `llm4s_2.13` on Maven Central is 0.2.9.
-  The dependency is now `"org.llm4s" %% "core"`, the module that is actually published.
-- **Defaults now point at a current release.** `llm4s_version` moves from `0.1.9` to `0.3.4` and
+  The dependency is now `"org.llm4s" %% "llm4s-core"`, the module that is actually published.
+  (Publishing continued under `org.llm4s:core` through 0.3.4; the 0.4.0 release renamed the
+  published modules to the `llm4s-*` prefix, so `llm4s-core` is the current coordinate.)
+- **Defaults now point at a current release.** `llm4s_version` moves from `0.1.9` to `0.4.0` and
   `scala_version` from `2.13.16` to `3.7.1`; `.scalafmt.conf` uses `runner.dialect = scala3` to
   match.
 - **Template sources compile against the current API.** `org.llm4s.llmconnect.LLM`,
@@ -43,7 +45,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `.scalafmt.conf` sets `rewrite.scala3.removeOptionalBraces = false` so that switching the dialect
   to `scala3` does not silently rewrite the generated sources into significant-indentation syntax.
 - README, COMPATIBILITY.md, CONTRIBUTING.md, and both CI workflows updated to describe Scala 3.7.1
-  and LLM4S 0.3.4.
+  and LLM4S 0.4.0. COMPATIBILITY.md records the full coordinate history: `org.llm4s:llm4s` (up to
+  0.2.9, unpublished), `org.llm4s:core` (up to 0.3.4, frozen), `org.llm4s:llm4s-core` (0.4.0
+  onward).
 - The generated project's GitHub Actions workflow now uses `actions/setup-java@v4`,
   `actions/cache@v4`, `actions/upload-artifact@v4` (v3 has been decommissioned) and
   `codecov/codecov-action@v5`, and `.pre-commit-config.yaml` uses the `pre-commit` / `pre-push`

@@ -17,7 +17,7 @@ You will be prompted for various parameters:
 - `name`: Project name (default: `llm4s-template`)
 - `package`: Package name (default: `org.llm4s.template`)
 - `version`: Initial project version (default: `0.1.0-SNAPSHOT`)
-- `llm4s_version`: LLM4S library version (default: `0.3.4`)
+- `llm4s_version`: LLM4S library version (default: `0.4.0`)
 - `scala_version`: Scala version (default: `3.7.1`)
 - `java_version`: Java version (default: `21`)
 - `munit_version`: Munit testing library version (default: `1.1.1`)
@@ -38,7 +38,7 @@ You can also provide parameters directly:
 sbt new llm4s/llm4s.g8 \
   --name=my-llm-project \
   --package=com.example.llm \
-  --llm4s_version=0.3.4 \
+  --llm4s_version=0.4.0 \
   --scala_version=3.7.1 \
   --java_version=21 \
   --munit_version=1.1.1
@@ -48,7 +48,7 @@ sbt new llm4s/llm4s.g8 \
 
 This template creates a complete LLM4S project with:
 
-- ✅ Pre-configured `build.sbt` depending on the published `org.llm4s %% core` artifact
+- ✅ Pre-configured `build.sbt` depending on the published `org.llm4s %% llm4s-core` artifact
 - ✅ `application.conf` with a named provider wired to environment variables via `Llm4sConfig`
 - ✅ Example application demonstrating LLM4S usage
 - ✅ Test setup with Munit
@@ -90,7 +90,7 @@ my-llm-project/
 
 | Template Version | LLM4S Versions | Scala Versions |
 |-----------------|----------------|----------------|
-| 1.1.x           | 0.3.x (default `0.3.4`) | 3.7.1 |
+| 1.1.x           | 0.4.x (default `0.4.0`) | 3.7.1 |
 | 1.0.x           | 0.1.0 - 0.1.x (artifact no longer published) | 2.13.16, 3.7.1 |
 
 LLM4S 1.0 targets Scala 3 only; see [COMPATIBILITY.md](COMPATIBILITY.md).

@@ -20,7 +20,7 @@ Pre-configured prerequisites
 - An API key for at least one LLM provider (OpenAI by default)
 - [Scala 3][Scala 3] — llm4s 1.0 is published for Scala 3 only
 - [MUnit] for unit testing
-- [LLM4S SDK][llm4s] (`org.llm4s %% core`)
+- [LLM4S SDK][llm4s] (`org.llm4s %% llm4s-core`)
 - Logging library [logback][logback], [scala-logging][scala-logging]
 
 Configuration

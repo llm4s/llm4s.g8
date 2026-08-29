@@ -55,8 +55,11 @@ Run the app
    ```
    You can also set this in your IDE's run configuration or use a `.env.$name$` file (Optional to use library like `dotenv-scala`.)
    ```bash
-   export \$(cat ".env.$name$" | xargs)
+   set -a; . "./.env.$name$"; set +a
    ```
+   Load it with `source`, not `export \$(cat ... | xargs)`: `xargs` does not understand
+   `#`, so every commented-out line in the file would be exported too — silently
+   re-enabling defaults you had overridden, and activating the placeholder API keys.
 
 2. Run with default or custom prompt:
    ```bash

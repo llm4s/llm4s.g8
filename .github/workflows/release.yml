@@ -65,7 +65,9 @@ jobs:
       - name: Generate release notes
         id: notes
         run: |
-          cat << EOF > release_notes.md
+          # Quoted delimiter: release notes are Markdown and contain backticks, which an
+          # unquoted heredoc would run as command substitution -- silently emptying them.
+          cat << 'EOF' > release_notes.md
           ## LLM4S Template v${{ steps.version.outputs.version }}
           
           ### What's New
@@ -77,9 +79,9 @@ jobs:
           
           Create a new project with this template version:
           
-          \`\`\`bash
+          ```bash
           sbt new llm4s/llm4s.g8.git#v${{ steps.version.outputs.version }}
-          \`\`\`
+          ```
           
           ### Full Changelog
           See [CHANGELOG.md](https://github.com/llm4s/llm4s.g8/blob/main/CHANGELOG.md) for detailed changes.

@@ -7,4 +7,4 @@ repos:
       - id: sbt-fatal-warnings
       - id: sbt-unused-imports
 
-default_stages: [commit, push]
+default_stages: [pre-commit, pre-push]

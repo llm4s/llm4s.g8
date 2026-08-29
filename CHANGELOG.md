@@ -44,6 +44,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   to `scala3` does not silently rewrite the generated sources into significant-indentation syntax.
 - README, COMPATIBILITY.md, CONTRIBUTING.md, and both CI workflows updated to describe Scala 3.7.1
   and LLM4S 0.3.4.
+- The generated project's GitHub Actions workflow now uses `actions/setup-java@v4`,
+  `actions/cache@v4`, `actions/upload-artifact@v4` (v3 has been decommissioned) and
+  `codecov/codecov-action@v5`, and `.pre-commit-config.yaml` uses the `pre-commit` / `pre-push`
+  stage names required by pre-commit 4.x.
 
 ## [1.0.0] - 2024-08-16
 

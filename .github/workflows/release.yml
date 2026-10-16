@@ -72,7 +72,7 @@ jobs:
           
           ### What's New
           - Template version: ${{ steps.version.outputs.version }}
-          - Compatible with LLM4S versions: 0.4.x (default 0.4.0, artifact `org.llm4s %% llm4s-core`)
+          - Compatible with LLM4S versions: 0.5.x (default 0.5.1; `llm4s-core` plus the `llm4s-ollama` and `llm4s-openai` provider modules)
           - Supports Scala: 3.7.1 (LLM4S 1.0 is Scala 3 only)
           
           ### Usage

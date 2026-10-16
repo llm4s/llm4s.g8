@@ -19,8 +19,9 @@ object Main {
       case Left(error) =>
         println("LLM call failed: " + error.formatted)
         println(
-          "Check that a default provider is configured under llm4s.providers in application.conf " +
-            "and that the matching API key is set. See the README for a worked example."
+          "The default provider is the `ollama-local` section of application.conf: start Ollama " +
+            "and run `ollama pull llama3.2`. To use OpenAI instead, set OPENAI_API_KEY and " +
+            "LLM4S_PROVIDER=openai-main. See the README for details."
         )
     }
   }

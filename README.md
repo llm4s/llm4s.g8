@@ -17,7 +17,7 @@ You will be prompted for various parameters:
 - `name`: Project name (default: `llm4s-template`)
 - `package`: Package name (default: `org.llm4s.template`)
 - `version`: Initial project version (default: `0.1.0-SNAPSHOT`)
-- `llm4s_version`: LLM4S library version (default: `0.4.0`)
+- `llm4s_version`: LLM4S library version (default: `0.5.1`)
 - `scala_version`: Scala version (default: `3.7.1`)
 - `java_version`: Java version (default: `21`)
 - `munit_version`: Munit testing library version (default: `1.1.1`)
@@ -38,7 +38,7 @@ You can also provide parameters directly:
 sbt new llm4s/llm4s.g8 \
   --name=my-llm-project \
   --package=com.example.llm \
-  --llm4s_version=0.4.0 \
+  --llm4s_version=0.5.1 \
   --scala_version=3.7.1 \
   --java_version=21 \
   --munit_version=1.1.1
@@ -48,10 +48,10 @@ sbt new llm4s/llm4s.g8 \
 
 This template creates a complete LLM4S project with:
 
-- ✅ Pre-configured `build.sbt` depending on the published `org.llm4s %% llm4s-core` artifact
-- ✅ `application.conf` with a named provider wired to environment variables via `Llm4sConfig`
+- ✅ Pre-configured `build.sbt`: `llm4s-core` plus the `llm4s-ollama` and `llm4s-openai` provider modules (core ships no provider since 0.5.0), all on one `llm4sVersion`, and Logback as the SLF4J backend
+- ✅ `application.conf` with named provider sections: `ollama-local` (the default, no API key) and `openai-main` (reads `OPENAI_API_KEY`)
 - ✅ Example application demonstrating LLM4S usage
-- ✅ Test setup with Munit
+- ✅ Offline tests with MUnit and `llm4s-testkit`'s `ScriptedLLMClient` (no model, network or API key)
 - ✅ Scalafmt configuration
 - ✅ GitHub Actions CI/CD workflows
 - ✅ Environment configuration support
@@ -75,8 +75,8 @@ my-llm-project/
 │   └── test/
 │       └── scala/
 │           └── com/example/
-│               ├── MainSpec.scala           # Configuration smoke tests
-│               └── PromptExecutorSpec.scala # Stub-client behaviour tests
+│               ├── MainSpec.scala           # Provider modules + configuration smoke tests
+│               └── PromptExecutorSpec.scala # ScriptedLLMClient behaviour tests
 ├── .env.<name>               # Environment variables template
 ├── .gitignore
 ├── .scalafmt.conf           # Code formatting rules
@@ -90,6 +90,7 @@ my-llm-project/
 
 | Template Version | LLM4S Versions | Scala Versions |
 |-----------------|----------------|----------------|
+| 1.2.x           | 0.5.x (default `0.5.1`) | 3.7.1 |
 | 1.1.x           | 0.4.x (default `0.4.0`) | 3.7.1 |
 | 1.0.x           | 0.1.0 - 0.1.x (artifact no longer published) | 2.13.16, 3.7.1 |
 

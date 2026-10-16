@@ -28,21 +28,24 @@ object PromptExecutor extends LazyLogging {
 
   /** Builds a client for the configured default named provider.
     *
-    * Configure one in `application.conf` (or `application.local.conf`):
+    * Configure one in `application.conf`:
     *
     * {{{
     * llm4s {
     *   providers {
-    *     provider = "openai-main"
+    *     provider = "ollama-local"
     *
-    *     openai-main {
-    *       provider = "openai"
-    *       model    = "gpt-4o"
-    *       apiKey   = \${?OPENAI_API_KEY}
+    *     ollama-local {
+    *       provider = "ollama"
+    *       model    = "llama3.2"
+    *       baseUrl  = "http://localhost:11434"
     *     }
     *   }
     * }
     * }}}
+    *
+    * The `provider` value must be supplied by a module on the classpath (`llm4s-ollama` here);
+    * `LLMConnect` finds it at runtime, so a missing module is a `Left` naming what to add.
     */
   def client(): Result[LLMClient] =
     for {

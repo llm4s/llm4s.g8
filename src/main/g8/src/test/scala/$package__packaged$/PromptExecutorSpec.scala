@@ -1,100 +1,70 @@
 package $package;format="package"$
 
 import munit.FunSuite
-import org.llm4s.error.ValidationError
-import org.llm4s.llmconnect.LLMClient
-import org.llm4s.llmconnect.model.{
-  AssistantMessage,
-  Completion,
-  CompletionOptions,
-  Conversation,
-  StreamedChunk,
-  TokenUsage,
-}
-import org.llm4s.types.Result
+import org.llm4s.error.RateLimitError
+import org.llm4s.llmconnect.model.{ SystemMessage, UserMessage }
+import org.llm4s.testkit.{ Reply, ScriptedLLMClient, UnscriptedCallError }
 
 /** This code is part of the Giter8 template llm4s.g8 in the llm4s project, which provides a
   * standard template/archetype to improve developer onboarding when creating new projects using the
   * llm4s library.
   */
 
-/** Tests for `PromptExecutor` driven by a stub `LLMClient`.
+/** Tests for `PromptExecutor`, driven by llm4s-testkit's `ScriptedLLMClient`.
   *
-  * These tests never reach the network and never need an API key — the client is an interface, so
-  * substitute your own implementation and assert on the `Result` it produces.
+  * `ScriptedLLMClient` is an `LLMClient` that answers from a script and records every request, so
+  * these tests never reach the network and never need an API key. Script a reply with `Reply.text`,
+  * `Reply.toolCall` or `Reply.failure`, run your code, then assert on both the `Result` and what
+  * was sent (`client.calls`).
   */
 class PromptExecutorSpec extends FunSuite {
 
-  private def stubClient(response: Result[Completion]): LLMClient = new LLMClient {
-    override def complete(
-        conversation: Conversation,
-        options: CompletionOptions,
-    ): Result[Completion] = response
-
-    override def streamComplete(
-        conversation: Conversation,
-        options: CompletionOptions,
-        onChunk: StreamedChunk => Unit,
-    ): Result[Completion] = response
-
-    override def getContextWindow(): Int = 128000
-
-    override def getReserveCompletion(): Int = 4096
-  }
-
-  private def completionOf(text: String): Completion =
-    Completion(
-      id = "stub-completion-id",
-      created = 0L,
-      content = text,
-      model = "stub-model",
-      message = AssistantMessage(contentOpt = Some(text)),
-      usage = Some(TokenUsage(promptTokens = 10, completionTokens = 5, totalTokens = 15)),
-    )
-
   test("run returns the assistant response on success") {
-    val client = stubClient(Right(completionOf("Monads represent computations")))
+    val client = ScriptedLLMClient.sequence(Reply.text("Monads represent computations"))
 
     assertEquals(
       PromptExecutor.run("Explain what a Monad is in Scala", client),
       Right("Monads represent computations"),
     )
+    assertEquals(client.callCount, 1)
   }
 
-  test("run sends the system prompt and the user prompt in order") {
-    var seen: Seq[String] = Seq.empty
-
-    val client = new LLMClient {
-      override def complete(
-          conversation: Conversation,
-          options: CompletionOptions,
-      ): Result[Completion] = {
-        seen = conversation.messages.map(_.content)
-        Right(completionOf("ok"))
-      }
-
-      override def streamComplete(
-          conversation: Conversation,
-          options: CompletionOptions,
-          onChunk: StreamedChunk => Unit,
-      ): Result[Completion] = Right(completionOf("ok"))
-
-      override def getContextWindow(): Int = 128000
-
-      override def getReserveCompletion(): Int = 4096
-    }
+  test("run sends the system prompt, then the user prompt") {
+    val client = ScriptedLLMClient.always(Reply.text("ok"))
 
     val _ = PromptExecutor.run("What is a Functor?", client)
 
-    assertEquals(seen.size, 2)
-    assertEquals(seen.last, "What is a Functor?")
+    val messages = client.calls.head.messages
+    assertEquals(messages.size, 2)
+    assert(messages.head.isInstanceOf[SystemMessage], "expected the system prompt first")
+    assert(messages.last.isInstanceOf[UserMessage], "expected the user prompt last")
+    assertEquals(client.calls.head.lastUserText, Some("What is a Functor?"))
   }
 
-  test("run returns the error as a value instead of throwing") {
-    val client = stubClient(Left(ValidationError("prompt", "LLM is down")))
+  test("run can pick its answer from the conversation") {
+    val client = ScriptedLLMClient.respondingTo {
+      case conversation if conversation.messages.exists(_.content.contains("capital of France")) =>
+        Reply.text("Paris")
+    }
+
+    assertEquals(PromptExecutor.run("What is the capital of France?", client), Right("Paris"))
+  }
+
+  test("run returns a provider error as a value instead of throwing") {
+    val client = ScriptedLLMClient.sequence(Reply.failure(RateLimitError("openai")))
+
     val result = PromptExecutor.run("Trigger error", client)
 
     assert(result.isLeft, "expected a Left")
-    assert(result.left.exists(_.message.contains("LLM is down")))
+    assert(result.left.exists(_.isInstanceOf[RateLimitError]))
+  }
+
+  test("a call the script did not expect fails with a Left that says why") {
+    val client = ScriptedLLMClient.sequence() // no replies scripted
+
+    val result = PromptExecutor.run("Unexpected call", client)
+
+    assert(result.left.exists(_.isInstanceOf[UnscriptedCallError]), result.toString)
+    assert(result.left.exists(_.message.contains("Unexpected call")), result.toString)
   }
 }

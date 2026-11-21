@@ -10,13 +10,32 @@ ThisBuild / scalaVersion := "$scala_version$"
 ThisBuild / semanticdbEnabled := true
 
 // =========== Dependencies ===========
+// Every llm4s module is released at the same version, so keep them on one val.
+val llm4sVersion = "$llm4s_version$"
+
 libraryDependencies ++= Seq(
-  "org.llm4s" %% "llm4s-core" % "$llm4s_version$", // LLM4S library dependency
+  // llm4s-core is the spine: configuration, the model and tool APIs, and the `LLMClient`
+  // interface. Since 0.5.0 it ships no provider - each provider is its own module, found at
+  // runtime from the classpath, so a provider you do not depend on cannot be loaded.
+  "org.llm4s" %% "llm4s-core"   % llm4sVersion,
+  "org.llm4s" %% "llm4s-ollama" % llm4sVersion, // `provider = "ollama"`: local models, no API key
+  "org.llm4s" %% "llm4s-openai" % llm4sVersion, // `provider = "openai"` (and "azure", "requesty")
+  // More providers, each one dependency away (see application.conf):
+  // "org.llm4s" %% "llm4s-anthropic"         % llm4sVersion, // "anthropic"
+  // "org.llm4s" %% "llm4s-gemini"            % llm4sVersion, // "gemini", "vertexai"
+  // "org.llm4s" %% "llm4s-openai-compatible" % llm4sVersion, // "deepseek", "mistral", "openrouter", ...
+  // Agents, guardrails and handoffs live in their own module too:
+  // "org.llm4s" %% "llm4s-agent"             % llm4sVersion,
+
+  // Tests: llm4s-testkit's ScriptedLLMClient answers from a script, so tests need no model,
+  // network or API key.
+  "org.llm4s" %% "llm4s-testkit" % llm4sVersion % Test,
   "org.scalameta" %% "munit" % "$munit_version$" % Test,
 
-  // Logger dependencies
-  "ch.qos.logback" % "logback-classic" % "1.4.14", // Logback backend
-  "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5" // scala-logging wrapper
+  // Logging. llm4s logs through slf4j-api only and, since 0.5.0, brings no backend: without
+  // one, SLF4J prints a "no SLF4J providers were found" warning and drops every log line.
+  "ch.qos.logback" % "logback-classic" % "1.5.38", // Logback backend (configured in logback.xml)
+  "com.typesafe.scala-logging" %% "scala-logging" % "3.9.6" // scala-logging wrapper
   // integrating scala-logging into LLM (Large Language Model) scala applications is a recommended practice,
   // especially when using SLF4J and Logback.
   // This combination is widely adopted in the Scala ecosystem for its simplicity, performance, and compatibility with structured logging

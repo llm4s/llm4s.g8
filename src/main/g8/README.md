@@ -17,41 +17,54 @@ Pre-configured prerequisites
 -----------
 - JDK 21+
 - SBT
-- An API key for at least one LLM provider (OpenAI by default)
+- [Ollama](https://ollama.com) running locally (the default provider, no API key), or an API key
+  for a hosted provider such as OpenAI
 - [Scala 3][Scala 3] — llm4s 1.0 is published for Scala 3 only
 - [MUnit] for unit testing
-- [LLM4S SDK][llm4s] (`org.llm4s %% llm4s-core`)
+- [LLM4S SDK][llm4s] $llm4s_version$: `llm4s-core` plus the `llm4s-ollama` and `llm4s-openai`
+  provider modules (since 0.5.0 core ships no provider), and `llm4s-testkit` for tests
 - Logging library [logback][logback], [scala-logging][scala-logging]
 
 Configuration
 -------------
 llm4s reads its configuration through `Llm4sConfig`, not by reading environment variables from
-application code. The provider is declared in `src/main/resources/application.conf` as a *named
-provider*, with the secret pulled in from the environment:
+application code. Providers are declared in `src/main/resources/application.conf` as *named
+sections*, and `llm4s.providers.provider` picks the default:
 
 ```hocon
 llm4s {
   providers {
-    provider = "openai-main"
+    provider = "ollama-local"          # or LLM4S_PROVIDER=openai-main
+
+    ollama-local {
+      provider = "ollama"              # from llm4s-ollama; no API key
+      model    = "llama3.2"
+      baseUrl  = "http://localhost:11434"
+    }
 
     openai-main {
-      provider = "openai"
-      model = "gpt-4o"
-      apiKey = \${?OPENAI_API_KEY}
+      provider = "openai"              # from llm4s-openai; reads OPENAI_API_KEY
+      model    = "gpt-4o-mini"
     }
   }
 }
 ```
 
-Edit that file to change model or provider (Anthropic and Ollama blocks are included, commented
-out). If the configuration is incomplete, `Llm4sConfig.defaultProvider()` returns a `Left`
+A section's `provider` must come from a module in `build.sbt`. To add Anthropic, Gemini and
+others, add their module (commented lines in `build.sbt`) and a section (commented examples in
+`application.conf`); each module reads its vendor's usual API-key variable for you. If the configuration is incomplete, `Llm4sConfig.defaultProvider()` returns a `Left`
 describing what is missing — it does not throw.
 
 Run the app
 -----------
-1. Export your API key:
+1. Start a model. With [Ollama](https://ollama.com) (the default):
+   ```bash
+   ollama pull llama3.2
+   ```
+   Or use OpenAI instead:
    ```bash
    export OPENAI_API_KEY=sk-xxxxxx
+   export LLM4S_PROVIDER=openai-main
    ```
    You can also set this in your IDE's run configuration or use a `.env.$name$` file (Optional to use library like `dotenv-scala`.)
    ```bash
@@ -76,10 +89,11 @@ Run the app
 
 - Included in this setup:
   - `munit` version `$munit_version$` is added as a test dependency in `build.sbt`.
-  - `src/test/scala/.../PromptExecutorSpec.scala` drives `PromptExecutor` with a stub `LLMClient`,
-    so the tests need neither an API key nor network access.
-  - `src/test/scala/.../MainSpec.scala` checks that building a client from configuration yields a
-    `Result` rather than an exception.
+  - `src/test/scala/.../PromptExecutorSpec.scala` drives `PromptExecutor` with `llm4s-testkit`'s
+    `ScriptedLLMClient`, which answers from a script and records each request, so the tests need
+    neither a model, an API key nor network access.
+  - `src/test/scala/.../MainSpec.scala` checks that both provider modules are registered, that the
+    `ollama-local` section loads, and that building a client yields a `Result`, not an exception.
 
 - To run tests:
   - Use SBT:

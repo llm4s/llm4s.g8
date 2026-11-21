@@ -77,7 +77,7 @@ If you find a bug or have a suggestion:
    sbt new file://$(pwd) \
      --name=my-test \
      --scala_version=3.7.1 \
-     --llm4s_version=0.5.1
+     --llm4s_version=0.6.0
    ```
 
 3. **Validate generated project**:

@@ -6,7 +6,7 @@ This document outlines the compatibility between different versions of the LLM4S
 
 | Template Version | LLM4S Versions | Scala Versions | Java Version | Status |
 |-----------------|----------------|----------------|--------------|---------|
-| 1.2.x           | 0.5.x (default `0.5.1`) | 3.7.1 | 21 | Current |
+| 1.2.x           | 0.5.x, 0.6.x (default `0.6.0`) | 3.7.1 | 21 | Current |
 | 1.1.x           | 0.4.x (default `0.4.0`) | 3.7.1 | 21 | Superseded |
 | 1.0.x           | 0.1.0 - 0.1.x  | 2.13.16, 3.7.1 | 21 | Broken — see below |
 
@@ -34,11 +34,12 @@ does not apply a Maven BOM's `dependencyManagement`, and every llm4s module is r
 same version, so one val gives the same alignment.
 
 **Supported LLM4S Versions:**
-- 0.5.1 ✅ (default)
+- 0.6.0 ✅ (default)
+- 0.5.1 ✅
 - 0.5.0 ✅ (`llm4s-testkit` is published from 0.5.0)
 
 **Supported Scala Versions:**
-- 3.7.1 ✅ (default, and the version llm4s 0.5.x is built with)
+- 3.7.1 ✅ (default, and the version llm4s 0.5.x and 0.6.x are built with)
 
 **Supported Java Versions:**
 - Java 21 ✅ (required)
@@ -125,16 +126,16 @@ sbt new llm4s/llm4s.g8
 
 This will use:
 - Latest template version
-- LLM4S 0.5.1 (current default)
+- LLM4S 0.6.0 (current default)
 - Scala 3.7.1 (current default)
 
 ### For a specific LLM4S version
 
 ```bash
-sbt new llm4s/llm4s.g8 --llm4s_version=0.5.1
+sbt new llm4s/llm4s.g8 --llm4s_version=0.6.0
 ```
 
-Any `0.5.x` release should work. A `0.4.x` version will not: the provider modules and `llm4s-testkit` do not exist before 0.5.0, so use template 1.1.x for 0.4.x. Note that versions **at or below 0.3.4 will not
+Any `0.5.x` or `0.6.x` release should work. A `0.4.x` version will not: the provider modules and `llm4s-testkit` do not exist before 0.5.0, so use template 1.1.x for 0.4.x. Note that versions **at or below 0.3.4 will not
 resolve with this template**, because they were published under the older `org.llm4s:core`
 coordinate — to use one you must also edit the artifact name in the generated `build.sbt`.
 

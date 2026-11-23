@@ -77,7 +77,7 @@ Run the app
 2. Run with default or custom prompt:
    ```bash
    sbt run
-   sbt run "Explain what a Monad is in Scala"
+   sbt 'run "Explain what a Monad is in Scala"'
    ```
 
 3. Format & compile (after making any changes):

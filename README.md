@@ -17,7 +17,7 @@ You will be prompted for various parameters:
 - `name`: Project name (default: `llm4s-template`)
 - `package`: Package name (default: `org.llm4s.template`)
 - `version`: Initial project version (default: `0.1.0-SNAPSHOT`)
-- `llm4s_version`: LLM4S library version (default: `0.7.0`)
+- `llm4s_version`: LLM4S library version (default: `1.0.0`)
 - `scala_version`: Scala version (default: `3.7.1`)
 - `java_version`: Java version (default: `21`)
 - `munit_version`: Munit testing library version (default: `1.1.1`)
@@ -38,7 +38,7 @@ You can also provide parameters directly:
 sbt new llm4s/llm4s.g8 \
   --name=my-llm-project \
   --package=com.example.llm \
-  --llm4s_version=0.7.0 \
+  --llm4s_version=1.0.0 \
   --scala_version=3.7.1 \
   --java_version=21 \
   --munit_version=1.1.1
@@ -90,6 +90,7 @@ my-llm-project/
 
 | Template Version | LLM4S Versions | Scala Versions |
 |-----------------|----------------|----------------|
+| 1.4.x           | 1.x (default `1.0.0`) | 3.7.1 |
 | 1.3.x           | 0.7.x (default `0.7.0`) | 3.7.1 |
 | 1.2.x           | 0.5.x, 0.6.x (default `0.6.0`) | 3.7.1 |
 | 1.1.x           | 0.4.x (default `0.4.0`) | 3.7.1 |

@@ -32,9 +32,9 @@ object PromptExecutor extends LazyLogging {
     *
     * {{{
     * llm4s {
-    *   providers {
-    *     provider = "ollama-local"
+    *   defaultProvider = "ollama-local"
     *
+    *   providers {
     *     ollama-local {
     *       provider = "ollama"
     *       model    = "llama3.2"

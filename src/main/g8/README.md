@@ -29,13 +29,13 @@ Configuration
 -------------
 llm4s reads its configuration through `Llm4sConfig`, not by reading environment variables from
 application code. Providers are declared in `src/main/resources/application.conf` as *named
-sections*, and `llm4s.providers.provider` picks the default:
+sections*, and `llm4s.defaultProvider` picks the default:
 
 ```hocon
 llm4s {
-  providers {
-    provider = "ollama-local"          # or LLM4S_PROVIDER=openai-main
+  defaultProvider = "ollama-local"     # or LLM4S_PROVIDER=openai-main
 
+  providers {
     ollama-local {
       provider = "ollama"              # from llm4s-ollama; no API key
       model    = "llama3.2"

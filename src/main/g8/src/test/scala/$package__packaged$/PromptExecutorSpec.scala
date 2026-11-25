@@ -4,6 +4,7 @@ import munit.FunSuite
 import org.llm4s.error.RateLimitError
 import org.llm4s.llmconnect.model.{ SystemMessage, UserMessage }
 import org.llm4s.testkit.{ Reply, ScriptedLLMClient, UnscriptedCallError }
+import org.llm4s.types.ProviderModelTypes.ProviderId
 
 /** This code is part of the Giter8 template llm4s.g8 in the llm4s project, which provides a
   * standard template/archetype to improve developer onboarding when creating new projects using the
@@ -51,7 +52,7 @@ class PromptExecutorSpec extends FunSuite {
   }
 
   test("run returns a provider error as a value instead of throwing") {
-    val client = ScriptedLLMClient.sequence(Reply.failure(RateLimitError("openai")))
+    val client = ScriptedLLMClient.sequence(Reply.failure(RateLimitError(ProviderId("openai"))))
 
     val result = PromptExecutor.run("Trigger error", client)
 
